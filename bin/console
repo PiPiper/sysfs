@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+
+require 'pi_piper'
+require 'pi_piper/sysfs'
+
+require 'irb'
+require 'irb/completion'
+IRB.start
