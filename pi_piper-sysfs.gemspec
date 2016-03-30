@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{GPIO kernel driver library for the Raspberry Pi and PiPiper}
   spec.description   = 'GPIO kernel driver library for the Raspberry Pi and other' \
                        ' boards that use the chipset. Commonly used with the' \
-                       ' PiPiper ruby library. it implements Pin (with events)' \
+                       ' PiPiper ruby library. It implements Pin (with events),' \
                        ' it reads from sysfs, and needs root UID to work'
 
   spec.homepage      = "https://github.com/PiPiper/sysfs"
