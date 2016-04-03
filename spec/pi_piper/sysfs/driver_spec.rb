@@ -1,11 +1,10 @@
 describe PiPiper::Sysfs::Driver do
   let(:pins) { '@exported_pins' }
-  let(:file) { double('File', read: true) }
+  let(:filewatcher) { double('FileWatcher') }
 
   before(:each) do
     allow(File).to receive(:write).with('/sys/class/gpio/export', 4)
     allow(File).to receive(:write).with('/sys/class/gpio/gpio4/direction', :in)
-    allow(File).to receive(:write).with('/sys/class/gpio/gpio4/direction', :out)
   end
 
   describe '#initialize' do
@@ -83,6 +82,8 @@ describe PiPiper::Sysfs::Driver do
 
   describe '#pin_write' do
     it 'should write the value to the pin' do
+      allow(File).to(
+        receive(:write).with('/sys/class/gpio/gpio4/direction', :out))
       subject.pin_direction(4, :out)
       expect(File).to receive(:write).with('/sys/class/gpio/gpio4/value', 1)
       subject.pin_write(4, 1)
@@ -143,12 +144,22 @@ describe PiPiper::Sysfs::Driver do
   end
 
   describe '#pin_wait_for' do
-    it 'should wait for the value of the pin to change' do
-      allow(File).to(
-        receive(:open).with('/sys/class/gpio/gpio4/value', 'r')
-                      .and_return(file))
-      allow(IO).to receive(:select)
-      expect(subject.pin_wait_for(4)).to be(true)
+    before(:each) do
+      subject.pin_direction(4, :in)
+      allow(filewatcher).to receive(:watch).and_yield('', :new)
+      allow(FileWatcher).to receive(:new).and_return(filewatcher)
+    end
+
+    it 'should wait for pin to trigger :rising' do
+      expect(subject).to receive(:pin_set_trigger).with(4, :rising)
+      allow(subject).to receive(:pin_read).with(4).and_return(0, 1)
+      expect(subject.pin_wait_for(4, :rising)).to be(true)
+    end
+
+    it 'should wait for pin to trigger :falling' do
+      expect(subject).to receive(:pin_set_trigger).with(4, :falling)
+      allow(subject).to receive(:pin_read).with(4).and_return(1, 0)
+      expect(subject.pin_wait_for(4, :falling)).to be(true)
     end
   end
 
