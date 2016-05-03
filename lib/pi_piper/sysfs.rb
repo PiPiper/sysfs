@@ -1,6 +1,7 @@
-require "pi_piper/sysfs/version"
-require "pi_piper/sysfs/sysfs"
+require 'pi_piper'
+require 'pi_piper/sysfs/version'
+require 'pi_piper/sysfs/driver'
 
 module PiPiper
-  self.driver= PiPiper::Sysfs
+  self.driver = PiPiper::Sysfs::Driver
 end
