@@ -1,6 +1,5 @@
 describe PiPiper::Sysfs::Driver do
   let(:pins) { '@exported_pins' }
-  let(:filewatcher) { double('FileWatcher') }
 
   before(:each) do
     allow(File).to receive(:write).with('/sys/class/gpio/export', 4)
@@ -143,24 +142,8 @@ describe PiPiper::Sysfs::Driver do
     end
   end
 
-  describe '#pin_wait_for' do
-    before(:each) do
-      subject.pin_direction(4, :in)
-      allow(filewatcher).to receive(:watch).and_yield('', :new)
-      allow(FileWatcher).to receive(:new).and_return(filewatcher)
-    end
-
-    it 'should wait for pin to trigger :rising' do
-      expect(subject).to receive(:pin_set_trigger).with(4, :rising)
-      allow(subject).to receive(:pin_read).with(4).and_return(0, 1)
-      expect(subject.pin_wait_for(4, :rising)).to be(true)
-    end
-
-    it 'should wait for pin to trigger :falling' do
-      expect(subject).to receive(:pin_set_trigger).with(4, :falling)
-      allow(subject).to receive(:pin_read).with(4).and_return(1, 0)
-      expect(subject.pin_wait_for(4, :falling)).to be(true)
-    end
+  xdescribe '#pin_wait_for' do
+  
   end
 
   describe '#close' do

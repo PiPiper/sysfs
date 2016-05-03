@@ -1,5 +1,3 @@
-require 'filewatcher'
-
 module PiPiper
   module Sysfs
     class Driver < PiPiper::Driver
@@ -47,15 +45,21 @@ module PiPiper
 
       def pin_wait_for(pin, trigger)
         pin_set_trigger(pin, trigger)
-        value = pin_read(pin)
+        fd = File.open(value_file(pin), 'r')
+        value = nil
 
-        FileWatcher.new([value_file(pin)]).watch do |filename, event|
-          next unless event == :changed || event == :new
-          next unless pin_value_changed?(pin, trigger, value)
-          break
+        loop do
+          fd.read
+          IO.select(nil, nil, [fd], nil)
+          last_value = value
+          value = self.pin_read(pin)
+          if last_value != value
+            next if trigger == :rising and value == 0
+            next if trigger == :falling and value == 1
+            break
+          end
         end
 
-        true
       end
 
   # Specific behaviours
